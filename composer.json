@@ -1,0 +1,75 @@
+{
+    "name": "davoodf1995/desk365",
+    "description": "Desk365 API integration for Laravel",
+    "keywords": [
+        "davoodf1995",
+        "laravel",
+        "desk365",
+        "ticketing",
+        "api"
+    ],
+    "homepage": "https://github.com/davoodf1995/desk365",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Davood",
+            "email": "davoodf1995@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "spatie/laravel-package-tools": "^1.14.0",
+        "illuminate/contracts": "^10.0",
+        "illuminate/support": "^10.0|^11.0|^12.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.0",
+        "nunomaduro/collision": "^7.8",
+        "larastan/larastan": "^2.0.1",
+        "orchestra/testbench": "^8.8",
+        "pestphp/pest": "^2.20",
+        "pestphp/pest-plugin-arch": "^2.0",
+        "pestphp/pest-plugin-laravel": "^2.0",
+        "phpstan/extension-installer": "^1.1",
+        "phpstan/phpstan-deprecation-rules": "^1.0",
+        "phpstan/phpstan-phpunit": "^1.0",
+        "spatie/laravel-ray": "^1.26"
+    },
+    "autoload": {
+        "psr-4": {
+            "Davoodf1995\\Desk365\\": "src",
+            "Davoodf1995\\Desk365\\Database\\Factories\\": "database/factories"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Davoodf1995\\Desk365\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "analyse": "vendor/bin/phpstan analyse",
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "format": "vendor/bin/pint"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Davoodf1995\\Desk365\\Desk365ServiceProvider"
+            ],
+            "aliases": {
+                "Desk365": "Davoodf1995\\Desk365\\Facades\\Desk365"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
+
