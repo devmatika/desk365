@@ -4,6 +4,7 @@ namespace Davoodf1995\Desk365\Services;
 
 use Davoodf1995\Desk365\DTO\TicketCreateDto;
 use Davoodf1995\Desk365\DTO\TicketUpdateDto;
+use Davoodf1995\Desk365\DTO\TicketFilterDto;
 use Davoodf1995\Desk365\DTO\CommentDto;
 use Davoodf1995\Desk365\DTO\ApiResponseDto;
 
@@ -22,4 +23,3 @@ interface TicketingServiceInterface
     public function updateTicketStatus(string $ticketId, string $status): ApiResponseDto;
     public function updateTicketPriority(string $ticketId, string $priority): ApiResponseDto;
 }
-

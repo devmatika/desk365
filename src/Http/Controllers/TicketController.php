@@ -1,18 +1,19 @@
 <?php
 
-namespace Davoodf1995\Desk365\Services;
+namespace Davoodf1995\Desk365\Http\Controllers;
 
 use Davoodf1995\Desk365\DTO\{
     ApiResponseDto,
     ApiConfigDto,
     TicketCreateDto,
     TicketUpdateDto,
-    CommentDto
+    TicketFilterDto,
+    TicketResponseDto
 };
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class Desk365TicketingService implements TicketingServiceInterface
+class TicketController
 {
     private ApiConfigDto $config;
     private string $apiVersion;
@@ -23,8 +24,36 @@ class Desk365TicketingService implements TicketingServiceInterface
         $this->apiVersion = $config->version ?? 'v3';
     }
 
-    // Ticket Operations
-    public function createTicket(TicketCreateDto $ticketData): ApiResponseDto
+    public function getAll(?TicketFilterDto $filters = null): ApiResponseDto
+    {
+        try {
+            $params = $filters ? $filters->toArray() : [];
+            $response = Http::withHeaders($this->config->getAuthHeaders())
+                ->timeout($this->config->timeout)
+                ->get($this->getEndpoint('tickets', $params));
+
+            return $this->handleResponse($response);
+        } catch (\Exception $e) {
+            Log::error('Desk365 API Error - Get All Tickets', ['error' => $e->getMessage()]);
+            return ApiResponseDto::error('Failed to get tickets: ' . $e->getMessage());
+        }
+    }
+
+    public function getById(string $ticketId): ApiResponseDto
+    {
+        try {
+            $response = Http::withHeaders($this->config->getAuthHeaders())
+                ->timeout($this->config->timeout)
+                ->get($this->getEndpoint("tickets/{$ticketId}"));
+
+            return $this->handleResponse($response);
+        } catch (\Exception $e) {
+            Log::error('Desk365 API Error - Get Ticket', ['ticket_id' => $ticketId, 'error' => $e->getMessage()]);
+            return ApiResponseDto::error('Failed to get ticket: ' . $e->getMessage());
+        }
+    }
+
+    public function create(TicketCreateDto $ticketData): ApiResponseDto
     {
         try {
             if($ticketData->file == null){
@@ -49,7 +78,7 @@ class Desk365TicketingService implements TicketingServiceInterface
         }
     }
 
-    public function updateTicket(string $ticketId, TicketUpdateDto $ticketData): ApiResponseDto
+    public function update(string $ticketId, TicketUpdateDto $ticketData): ApiResponseDto
     {
         try {
             $response = Http::withHeaders($this->config->getAuthHeaders())
@@ -63,47 +92,37 @@ class Desk365TicketingService implements TicketingServiceInterface
         }
     }
 
-    public function closeTicket(string $ticketId): ApiResponseDto
-    {
-        $updateData = new TicketUpdateDto(status: 'closed');
-        return $this->updateTicket($ticketId, $updateData);
-    }
-
-    public function reopenTicket(string $ticketId): ApiResponseDto
-    {
-        $updateData = new TicketUpdateDto(status: 'open');
-        return $this->updateTicket($ticketId, $updateData);
-    }
-
-    // Ticket Comments/Messages
-    public function addComment(string $ticketId, CommentDto $comment): ApiResponseDto
+    public function delete(string $ticketId): ApiResponseDto
     {
         try {
             $response = Http::withHeaders($this->config->getAuthHeaders())
                 ->timeout($this->config->timeout)
-                ->post($this->getEndpoint("tickets/add_reply"), $comment->toArray());
+                ->delete($this->getEndpoint("tickets/{$ticketId}"));
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {
-            Log::error('Desk365 API Error - Add Comment', ['ticket_id' => $ticketId, 'error' => $e->getMessage()]);
-            return ApiResponseDto::error('Failed to add comment: ' . $e->getMessage());
+            Log::error('Desk365 API Error - Delete Ticket', ['ticket_id' => $ticketId, 'error' => $e->getMessage()]);
+            return ApiResponseDto::error('Failed to delete ticket: ' . $e->getMessage());
         }
     }
 
-    // Ticket Status and Priority
-    public function updateTicketStatus(string $ticketId, string $status): ApiResponseDto
+    public function search(string $query, ?TicketFilterDto $filters = null): ApiResponseDto
     {
-        $updateData = new TicketUpdateDto(status: $status);
-        return $this->updateTicket($ticketId, $updateData);
+        try {
+            $params = $filters ? $filters->toArray() : [];
+            $params['search'] = $query;
+            
+            $response = Http::withHeaders($this->config->getAuthHeaders())
+                ->timeout($this->config->timeout)
+                ->get($this->getEndpoint('tickets/search', $params));
+
+            return $this->handleResponse($response);
+        } catch (\Exception $e) {
+            Log::error('Desk365 API Error - Search Tickets', ['error' => $e->getMessage()]);
+            return ApiResponseDto::error('Failed to search tickets: ' . $e->getMessage());
+        }
     }
 
-    public function updateTicketPriority(string $ticketId, string $priority): ApiResponseDto
-    {
-        $updateData = new TicketUpdateDto(priority: $priority);
-        return $this->updateTicket($ticketId, $updateData);
-    }
-
-    // Helper Methods
     private function getEndpoint(string $path, array $parameters = []): string
     {
         $endpoint = rtrim($this->config->baseUrl, '/') . '/api/' . $this->apiVersion . '/' . ltrim($path, '/');
