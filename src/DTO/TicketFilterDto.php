@@ -5,35 +5,43 @@ namespace Davoodf1995\Desk365\DTO;
 class TicketFilterDto
 {
     public function __construct(
-        public ?string $status = null,
-        public ?string $priority = null,
-        public ?string $assignedTo = null,
-        public ?string $group = null,
-        public ?string $category = null,
-        public ?string $customerId = null,
-        public ?string $dateFrom = null,
-        public ?string $dateTo = null,
-        public ?string $search = null,
-        public ?int $page = 1,
-        public ?int $perPage = 20,
+        public ?string $ticket_count = null, // "30", "50", or "100"
+        public ?string $offset = null,
+        public ?string $include_description = null, // "0" or "1"
+        public ?string $include_custom_fields = null, // "0" or "1"
+        public ?string $include_survey_details = null, // "0" or "1"
+        public ?string $nested_fields = null, // "0" or "1"
+        public ?string $order_by = null, // "created_time" or "updated_time"
+        public ?string $order_type = null, // "asc" or "desc"
+        public ?string $updated_since = null, // "yyyy-mm-dd hh:mm:ss"
+        public ?string $filters = null, // JSON string with filter object
     ) {
     }
 
     public function toArray(): array
     {
         return array_filter([
-            'status' => $this->status,
-            'priority' => $this->priority,
-            'assigned_to' => $this->assignedTo,
-            'group' => $this->group,
-            'category' => $this->category,
-            'customer_id' => $this->customerId,
-            'date_from' => $this->dateFrom,
-            'date_to' => $this->dateTo,
-            'search' => $this->search,
-            'page' => $this->page,
-            'per_page' => $this->perPage,
+            'ticket_count' => $this->ticket_count,
+            'offset' => $this->offset,
+            'include_description' => $this->include_description,
+            'include_custom_fields' => $this->include_custom_fields,
+            'include_survey_details' => $this->include_survey_details,
+            'nested_fields' => $this->nested_fields,
+            'order_by' => $this->order_by,
+            'order_type' => $this->order_type,
+            'updated_since' => $this->updated_since,
+            'filters' => $this->filters,
         ], fn($value) => $value !== null);
+    }
+
+    /**
+     * Helper method to build filters JSON string
+     * @param array $filterData Array with keys: status, priority, type, group, assigned_to, category, subcategory, source, contact
+     * @return string JSON encoded filters
+     */
+    public static function buildFilters(array $filterData): string
+    {
+        return json_encode($filterData);
     }
 }
 
