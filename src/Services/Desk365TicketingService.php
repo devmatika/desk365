@@ -7,7 +7,8 @@ use Davoodf1995\Desk365\DTO\{
     ApiConfigDto,
     TicketCreateDto,
     TicketUpdateDto,
-    CommentDto
+    ReplyDto,
+    NoteDto
 };
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -27,19 +28,31 @@ class Desk365TicketingService implements TicketingServiceInterface
     public function createTicket(TicketCreateDto $ticketData): ApiResponseDto
     {
         try {
-            if($ticketData->file == null){
+            $files = $ticketData->file ?? null;
+            if($files == null){
                 $response = Http::withHeaders($this->config->getAuthHeaders())
                     ->timeout($this->config->timeout)
                     ->post($this->getEndpoint('tickets/create'), $ticketData->toArray());
 
                 return $this->handleResponse($response);
             } else {
-                $object = json_encode($ticketData->except(['file'])->toArray());
+                $ticketArray = $ticketData->toArray();
+                $ticketObject = json_encode($ticketArray);
 
-                $response = Http::withHeaders($this->config->getAuthHeaders())
-                    ->timeout($this->config->timeout)
-                    ->attach('file', $ticketData->file)
-                    ->post($this->getEndpoint('tickets/create_with_attachment', ['ticket_object' => $object]));
+                $http = Http::withHeaders($this->config->getAuthHeaders())
+                    ->timeout($this->config->timeout);
+
+                // Handle multiple files (use 'files' for multiple, 'file' for single)
+                if (is_array($files) && count($files) > 1) {
+                    foreach ($files as $file) {
+                        $http->attach('files', $file);
+                    }
+                } else {
+                    $fileToAttach = is_array($files) ? $files[0] : $files;
+                    $http->attach('file', $fileToAttach);
+                }
+
+                $response = $http->post($this->getEndpoint('tickets/create_with_attachment', ['ticket_object' => $ticketObject]));
 
                 return $this->handleResponse($response);
             }
@@ -49,64 +62,125 @@ class Desk365TicketingService implements TicketingServiceInterface
         }
     }
 
-    public function updateTicket(string $ticketId, TicketUpdateDto $ticketData): ApiResponseDto
+    public function updateTicket(string $ticketNumber, TicketUpdateDto $ticketData): ApiResponseDto
     {
         try {
             $response = Http::withHeaders($this->config->getAuthHeaders())
                 ->timeout($this->config->timeout)
-                ->put($this->getEndpoint("tickets/update", ['ticket_number' => $ticketId]), $ticketData->toArray());
+                ->put($this->getEndpoint("tickets/update", ['ticket_number' => $ticketNumber]), $ticketData->toArray());
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {
-            Log::error('Desk365 API Error - Update Ticket', ['ticket_id' => $ticketId, 'error' => $e->getMessage()]);
+            Log::error('Desk365 API Error - Update Ticket', ['ticket_number' => $ticketNumber, 'error' => $e->getMessage()]);
             return ApiResponseDto::error('Failed to update ticket: ' . $e->getMessage());
         }
     }
 
-    public function closeTicket(string $ticketId): ApiResponseDto
+    public function closeTicket(string $ticketNumber): ApiResponseDto
     {
         $updateData = new TicketUpdateDto(status: 'closed');
-        return $this->updateTicket($ticketId, $updateData);
+        return $this->updateTicket($ticketNumber, $updateData);
     }
 
-    public function reopenTicket(string $ticketId): ApiResponseDto
+    public function reopenTicket(string $ticketNumber): ApiResponseDto
     {
         $updateData = new TicketUpdateDto(status: 'open');
-        return $this->updateTicket($ticketId, $updateData);
+        return $this->updateTicket($ticketNumber, $updateData);
     }
 
-    // Ticket Comments/Messages
-    public function addComment(string $ticketId, CommentDto $comment): ApiResponseDto
+    // Ticket Replies
+    public function addReply(string $ticketNumber, ReplyDto $reply, $files = null): ApiResponseDto
     {
         try {
-            $response = Http::withHeaders($this->config->getAuthHeaders())
-                ->timeout($this->config->timeout)
-                ->post($this->getEndpoint("tickets/add_reply"), $comment->toArray());
+            if ($files === null) {
+                $response = Http::withHeaders($this->config->getAuthHeaders())
+                    ->timeout($this->config->timeout)
+                    ->post($this->getEndpoint("tickets/add_reply", ['ticket_number' => $ticketNumber]), $reply->toArray());
 
-            return $this->handleResponse($response);
+                return $this->handleResponse($response);
+            } else {
+                $replyObject = json_encode($reply->toArray());
+                $http = Http::withHeaders($this->config->getAuthHeaders())
+                    ->timeout($this->config->timeout);
+
+                // Handle multiple files (use 'files' for multiple, 'file' for single)
+                if (is_array($files) && count($files) > 1) {
+                    foreach ($files as $file) {
+                        $http->attach('files', $file);
+                    }
+                } else {
+                    $fileToAttach = is_array($files) ? $files[0] : $files;
+                    $http->attach('file', $fileToAttach);
+                }
+
+                $response = $http->post($this->getEndpoint("tickets/add_reply_with_attachment", [
+                    'ticket_number' => $ticketNumber,
+                    'reply_object' => $replyObject
+                ]));
+
+                return $this->handleResponse($response);
+            }
         } catch (\Exception $e) {
-            Log::error('Desk365 API Error - Add Comment', ['ticket_id' => $ticketId, 'error' => $e->getMessage()]);
-            return ApiResponseDto::error('Failed to add comment: ' . $e->getMessage());
+            Log::error('Desk365 API Error - Add Reply', ['ticket_number' => $ticketNumber, 'error' => $e->getMessage()]);
+            return ApiResponseDto::error('Failed to add reply: ' . $e->getMessage());
+        }
+    }
+
+    // Ticket Notes
+    public function addNote(string $ticketNumber, NoteDto $note, $files = null): ApiResponseDto
+    {
+        try {
+            if ($files === null) {
+                $response = Http::withHeaders($this->config->getAuthHeaders())
+                    ->timeout($this->config->timeout)
+                    ->post($this->getEndpoint("tickets/add_note", ['ticket_number' => $ticketNumber]), $note->toArray());
+
+                return $this->handleResponse($response);
+            } else {
+                $noteObject = json_encode($note->toArray());
+                $http = Http::withHeaders($this->config->getAuthHeaders())
+                    ->timeout($this->config->timeout);
+
+                // Handle multiple files (use 'files' for multiple, 'file' for single)
+                if (is_array($files) && count($files) > 1) {
+                    foreach ($files as $file) {
+                        $http->attach('files', $file);
+                    }
+                } else {
+                    $fileToAttach = is_array($files) ? $files[0] : $files;
+                    $http->attach('file', $fileToAttach);
+                }
+
+                $response = $http->post($this->getEndpoint("tickets/add_note_with_attachment", [
+                    'ticket_number' => $ticketNumber,
+                    'note_object' => $noteObject
+                ]));
+
+                return $this->handleResponse($response);
+            }
+        } catch (\Exception $e) {
+            Log::error('Desk365 API Error - Add Note', ['ticket_number' => $ticketNumber, 'error' => $e->getMessage()]);
+            return ApiResponseDto::error('Failed to add note: ' . $e->getMessage());
         }
     }
 
     // Ticket Status and Priority
-    public function updateTicketStatus(string $ticketId, string $status): ApiResponseDto
+    public function updateTicketStatus(string $ticketNumber, string $status): ApiResponseDto
     {
         $updateData = new TicketUpdateDto(status: $status);
-        return $this->updateTicket($ticketId, $updateData);
+        return $this->updateTicket($ticketNumber, $updateData);
     }
 
-    public function updateTicketPriority(string $ticketId, string $priority): ApiResponseDto
+    public function updateTicketPriority(string $ticketNumber, int $priority): ApiResponseDto
     {
         $updateData = new TicketUpdateDto(priority: $priority);
-        return $this->updateTicket($ticketId, $updateData);
+        return $this->updateTicket($ticketNumber, $updateData);
     }
 
     // Helper Methods
     private function getEndpoint(string $path, array $parameters = []): string
     {
-        $endpoint = rtrim($this->config->baseUrl, '/') . '/api/' . $this->apiVersion . '/' . ltrim($path, '/');
+        $endpoint = rtrim($this->config->baseUrl, '/') . '/apis/' . $this->apiVersion . '/' . ltrim($path, '/');
         if (!empty($parameters)) {
             $query = http_build_query($parameters);
             $endpoint .= '?' . $query;
