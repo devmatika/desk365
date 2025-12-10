@@ -16,7 +16,8 @@ use Davoodf1995\Desk365\DTO\{
     TicketCreateDto,
     TicketUpdateDto,
     TicketFilterDto,
-    CommentDto,
+    ReplyDto,
+    NoteDto,
     AgentDto,
     CustomerDto
 };
@@ -67,10 +68,16 @@ class Desk365
         return self::$ticketController->getAll($filters);
     }
 
-    public static function getTicket(string $ticketId)
+    public static function getTicket(string $ticketNumber)
     {
         self::getConfig();
-        return self::$ticketController->getById($ticketId);
+        return self::$ticketController->getById($ticketNumber);
+    }
+
+    public static function getTicketConversations(string $ticketNumber, array $params = [])
+    {
+        self::getConfig();
+        return self::$ticketController->getConversations($ticketNumber, $params);
     }
 
     public static function createTicket(TicketCreateDto $ticketData)
@@ -79,82 +86,50 @@ class Desk365
         return self::$ticketController->create($ticketData);
     }
 
-    public static function updateTicket(string $ticketId, TicketUpdateDto $ticketData)
+    public static function updateTicket(string $ticketNumber, TicketUpdateDto $ticketData)
     {
         self::getConfig();
-        return self::$ticketController->update($ticketId, $ticketData);
+        return self::$ticketController->update($ticketNumber, $ticketData);
     }
 
-    public static function deleteTicket(string $ticketId)
+    public static function addReply(string $ticketNumber, ReplyDto $replyData, $files = null)
     {
         self::getConfig();
-        return self::$ticketController->delete($ticketId);
+        return self::$ticketController->addReply($ticketNumber, $replyData, $files);
     }
 
-    public static function searchTickets(string $query, ?TicketFilterDto $filters = null)
+    public static function addNote(string $ticketNumber, NoteDto $noteData, $files = null)
     {
         self::getConfig();
-        return self::$ticketController->search($query, $filters);
+        return self::$ticketController->addNote($ticketNumber, $noteData, $files);
     }
 
-    public static function closeTicket(string $ticketId)
+    public static function closeTicket(string $ticketNumber)
     {
         self::getConfig();
         $updateData = new TicketUpdateDto(status: 'closed');
-        return self::$ticketController->update($ticketId, $updateData);
+        return self::$ticketController->update($ticketNumber, $updateData);
     }
 
-    public static function reopenTicket(string $ticketId)
+    public static function reopenTicket(string $ticketNumber)
     {
         self::getConfig();
         $updateData = new TicketUpdateDto(status: 'open');
-        return self::$ticketController->update($ticketId, $updateData);
+        return self::$ticketController->update($ticketNumber, $updateData);
     }
 
-    public static function updateTicketStatus(string $ticketId, string $status)
+    public static function updateTicketStatus(string $ticketNumber, string $status)
     {
         self::getConfig();
         $updateData = new TicketUpdateDto(status: $status);
-        return self::$ticketController->update($ticketId, $updateData);
+        return self::$ticketController->update($ticketNumber, $updateData);
     }
 
-    public static function updateTicketPriority(string $ticketId, string $priority)
+    public static function updateTicketPriority(string $ticketNumber, int $priority)
     {
         self::getConfig();
-        $updateData = new TicketUpdateDto(priority: (int)$priority);
-        return self::$ticketController->update($ticketId, $updateData);
-    }
-
-    // ========== COMMENT OPERATIONS ==========
-
-    public static function getComments(string $ticketId, array $params = [])
-    {
-        self::getConfig();
-        return self::$commentController->getAll($ticketId, $params);
-    }
-
-    public static function getComment(string $ticketId, string $commentId)
-    {
-        self::getConfig();
-        return self::$commentController->getById($ticketId, $commentId);
-    }
-
-    public static function addComment(string $ticketId, CommentDto $comment)
-    {
-        self::getConfig();
-        return self::$commentController->add($ticketId, $comment);
-    }
-
-    public static function updateComment(string $ticketId, string $commentId, CommentDto $comment)
-    {
-        self::getConfig();
-        return self::$commentController->update($ticketId, $commentId, $comment);
-    }
-
-    public static function deleteComment(string $ticketId, string $commentId)
-    {
-        self::getConfig();
-        return self::$commentController->delete($ticketId, $commentId);
+        $updateData = new TicketUpdateDto(priority: $priority);
+        return self::$ticketController->update($ticketNumber, $updateData);
     }
 
     // ========== ATTACHMENT OPERATIONS ==========
@@ -221,42 +196,64 @@ class Desk365
         return self::$agentController->delete($agentId);
     }
 
-    // ========== CUSTOMER OPERATIONS ==========
+    // ========== CONTACT OPERATIONS ==========
 
-    public static function getAllCustomers(array $params = [])
+    public static function getAllContacts(array $params = [])
     {
         self::getConfig();
         return self::$customerController->getAll($params);
     }
 
-    public static function getCustomer(string $customerId)
+    public static function getContact(string $primaryEmail)
     {
         self::getConfig();
-        return self::$customerController->getById($customerId);
+        return self::$customerController->getById($primaryEmail);
     }
 
+    public static function createContact(CustomerDto $contactData)
+    {
+        self::getConfig();
+        return self::$customerController->create($contactData);
+    }
+
+    public static function updateContact(string $primaryEmail, CustomerDto $contactData)
+    {
+        self::getConfig();
+        return self::$customerController->update($primaryEmail, $contactData);
+    }
+
+    // ========== CUSTOMER OPERATIONS (Legacy - use Contact methods instead) ==========
+
+    /**
+     * @deprecated Use getAllContacts() instead
+     */
+    public static function getAllCustomers(array $params = [])
+    {
+        return self::getAllContacts($params);
+    }
+
+    /**
+     * @deprecated Use getContact() instead
+     */
+    public static function getCustomer(string $primaryEmail)
+    {
+        return self::getContact($primaryEmail);
+    }
+
+    /**
+     * @deprecated Use createContact() instead
+     */
     public static function createCustomer(CustomerDto $customerData)
     {
-        self::getConfig();
-        return self::$customerController->create($customerData);
+        return self::createContact($customerData);
     }
 
-    public static function updateCustomer(string $customerId, CustomerDto $customerData)
+    /**
+     * @deprecated Use updateContact() instead
+     */
+    public static function updateCustomer(string $primaryEmail, CustomerDto $customerData)
     {
-        self::getConfig();
-        return self::$customerController->update($customerId, $customerData);
-    }
-
-    public static function deleteCustomer(string $customerId)
-    {
-        self::getConfig();
-        return self::$customerController->delete($customerId);
-    }
-
-    public static function searchCustomers(string $query, array $params = [])
-    {
-        self::getConfig();
-        return self::$customerController->search($query, $params);
+        return self::updateContact($primaryEmail, $customerData);
     }
 
     // ========== REPORT OPERATIONS ==========

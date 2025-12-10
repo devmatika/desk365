@@ -72,7 +72,7 @@ class ReportController
 
     private function getEndpoint(string $path, array $parameters = []): string
     {
-        $endpoint = rtrim($this->config->baseUrl, '/') . '/api/' . $this->apiVersion . '/' . ltrim($path, '/');
+        $endpoint = rtrim($this->config->baseUrl, '/') . '/apis/' . $this->apiVersion . '/' . ltrim($path, '/');
         if (!empty($parameters)) {
             $query = http_build_query($parameters);
             $endpoint .= '?' . $query;
