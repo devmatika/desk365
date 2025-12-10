@@ -26,26 +26,26 @@ class CustomerController
         try {
             $response = Http::withHeaders($this->config->getAuthHeaders())
                 ->timeout($this->config->timeout)
-                ->get($this->getEndpoint('customers', $params));
+                ->get($this->getEndpoint('contacts', $params));
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {
-            Log::error('Desk365 API Error - Get All Customers', ['error' => $e->getMessage()]);
-            return ApiResponseDto::error('Failed to get customers: ' . $e->getMessage());
+            Log::error('Desk365 API Error - Get All Contacts', ['error' => $e->getMessage()]);
+            return ApiResponseDto::error('Failed to get contacts: ' . $e->getMessage());
         }
     }
 
-    public function getById(string $customerId): ApiResponseDto
+    public function getById(string $primaryEmail): ApiResponseDto
     {
         try {
             $response = Http::withHeaders($this->config->getAuthHeaders())
                 ->timeout($this->config->timeout)
-                ->get($this->getEndpoint("customers/{$customerId}"));
+                ->get($this->getEndpoint("contacts/details", ['primary_email' => $primaryEmail]));
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {
-            Log::error('Desk365 API Error - Get Customer', ['customer_id' => $customerId, 'error' => $e->getMessage()]);
-            return ApiResponseDto::error('Failed to get customer: ' . $e->getMessage());
+            Log::error('Desk365 API Error - Get Contact', ['primary_email' => $primaryEmail, 'error' => $e->getMessage()]);
+            return ApiResponseDto::error('Failed to get contact: ' . $e->getMessage());
         }
     }
 
@@ -54,61 +54,32 @@ class CustomerController
         try {
             $response = Http::withHeaders($this->config->getAuthHeaders())
                 ->timeout($this->config->timeout)
-                ->post($this->getEndpoint('customers'), $customerData->toArray());
+                ->post($this->getEndpoint('contacts/create'), $customerData->toArray());
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {
-            Log::error('Desk365 API Error - Create Customer', ['error' => $e->getMessage()]);
-            return ApiResponseDto::error('Failed to create customer: ' . $e->getMessage());
+            Log::error('Desk365 API Error - Create Contact', ['error' => $e->getMessage()]);
+            return ApiResponseDto::error('Failed to create contact: ' . $e->getMessage());
         }
     }
 
-    public function update(string $customerId, CustomerDto $customerData): ApiResponseDto
+    public function update(string $primaryEmail, CustomerDto $customerData): ApiResponseDto
     {
         try {
             $response = Http::withHeaders($this->config->getAuthHeaders())
                 ->timeout($this->config->timeout)
-                ->put($this->getEndpoint("customers/{$customerId}"), $customerData->toArray());
+                ->put($this->getEndpoint("contacts/update", ['primary_email' => $primaryEmail]), $customerData->toArray());
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {
-            Log::error('Desk365 API Error - Update Customer', ['customer_id' => $customerId, 'error' => $e->getMessage()]);
-            return ApiResponseDto::error('Failed to update customer: ' . $e->getMessage());
-        }
-    }
-
-    public function delete(string $customerId): ApiResponseDto
-    {
-        try {
-            $response = Http::withHeaders($this->config->getAuthHeaders())
-                ->timeout($this->config->timeout)
-                ->delete($this->getEndpoint("customers/{$customerId}"));
-
-            return $this->handleResponse($response);
-        } catch (\Exception $e) {
-            Log::error('Desk365 API Error - Delete Customer', ['customer_id' => $customerId, 'error' => $e->getMessage()]);
-            return ApiResponseDto::error('Failed to delete customer: ' . $e->getMessage());
-        }
-    }
-
-    public function search(string $query, array $params = []): ApiResponseDto
-    {
-        try {
-            $params['search'] = $query;
-            $response = Http::withHeaders($this->config->getAuthHeaders())
-                ->timeout($this->config->timeout)
-                ->get($this->getEndpoint('customers/search', $params));
-
-            return $this->handleResponse($response);
-        } catch (\Exception $e) {
-            Log::error('Desk365 API Error - Search Customers', ['error' => $e->getMessage()]);
-            return ApiResponseDto::error('Failed to search customers: ' . $e->getMessage());
+            Log::error('Desk365 API Error - Update Contact', ['primary_email' => $primaryEmail, 'error' => $e->getMessage()]);
+            return ApiResponseDto::error('Failed to update contact: ' . $e->getMessage());
         }
     }
 
     private function getEndpoint(string $path, array $parameters = []): string
     {
-        $endpoint = rtrim($this->config->baseUrl, '/') . '/api/' . $this->apiVersion . '/' . ltrim($path, '/');
+        $endpoint = rtrim($this->config->baseUrl, '/') . '/apis/' . $this->apiVersion . '/' . ltrim($path, '/');
         if (!empty($parameters)) {
             $query = http_build_query($parameters);
             $endpoint .= '?' . $query;
