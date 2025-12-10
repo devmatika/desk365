@@ -7,11 +7,12 @@ use Davoodf1995\Desk365\DTO\{
     ApiConfigDto,
     TicketFilterDto
 };
-use Illuminate\Support\Facades\Http;
+use Davoodf1995\Desk365\Traits\LogsApiCalls;
 use Illuminate\Support\Facades\Log;
 
 class ReportController
 {
+    use LogsApiCalls;
     private ApiConfigDto $config;
     private string $apiVersion;
 
@@ -25,9 +26,15 @@ class ReportController
     {
         try {
             $params = $filters ? $filters->toArray() : [];
-            $response = Http::withHeaders($this->config->getAuthHeaders())
-                ->timeout($this->config->timeout)
-                ->get($this->getEndpoint('reports/tickets/statistics', $params));
+            $endpoint = $this->getEndpoint('reports/tickets/statistics', $params);
+            $response = $this->makeLoggedApiCall(
+                method: 'GET',
+                endpoint: $endpoint,
+                headers: $this->config->getAuthHeaders(),
+                data: $params,
+                timeout: $this->config->timeout,
+                operation: 'getTicketStatistics'
+            );
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {
@@ -45,9 +52,15 @@ class ReportController
                 'date_to' => $dateTo,
             ]);
             
-            $response = Http::withHeaders($this->config->getAuthHeaders())
-                ->timeout($this->config->timeout)
-                ->get($this->getEndpoint('reports/agents/statistics', $params));
+            $endpoint = $this->getEndpoint('reports/agents/statistics', $params);
+            $response = $this->makeLoggedApiCall(
+                method: 'GET',
+                endpoint: $endpoint,
+                headers: $this->config->getAuthHeaders(),
+                data: $params,
+                timeout: $this->config->timeout,
+                operation: 'getAgentStatistics'
+            );
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {
@@ -59,9 +72,15 @@ class ReportController
     public function getDashboardData(array $params = []): ApiResponseDto
     {
         try {
-            $response = Http::withHeaders($this->config->getAuthHeaders())
-                ->timeout($this->config->timeout)
-                ->get($this->getEndpoint('reports/dashboard', $params));
+            $endpoint = $this->getEndpoint('reports/dashboard', $params);
+            $response = $this->makeLoggedApiCall(
+                method: 'GET',
+                endpoint: $endpoint,
+                headers: $this->config->getAuthHeaders(),
+                data: $params,
+                timeout: $this->config->timeout,
+                operation: 'getDashboardData'
+            );
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {

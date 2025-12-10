@@ -7,11 +7,12 @@ use Davoodf1995\Desk365\DTO\{
     ApiConfigDto,
     AgentDto
 };
-use Illuminate\Support\Facades\Http;
+use Davoodf1995\Desk365\Traits\LogsApiCalls;
 use Illuminate\Support\Facades\Log;
 
 class AgentController
 {
+    use LogsApiCalls;
     private ApiConfigDto $config;
     private string $apiVersion;
 
@@ -24,9 +25,15 @@ class AgentController
     public function getAll(array $params = []): ApiResponseDto
     {
         try {
-            $response = Http::withHeaders($this->config->getAuthHeaders())
-                ->timeout($this->config->timeout)
-                ->get($this->getEndpoint('agents', $params));
+            $endpoint = $this->getEndpoint('agents', $params);
+            $response = $this->makeLoggedApiCall(
+                method: 'GET',
+                endpoint: $endpoint,
+                headers: $this->config->getAuthHeaders(),
+                data: $params,
+                timeout: $this->config->timeout,
+                operation: 'getAllAgents'
+            );
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {
@@ -38,9 +45,15 @@ class AgentController
     public function getById(string $agentId): ApiResponseDto
     {
         try {
-            $response = Http::withHeaders($this->config->getAuthHeaders())
-                ->timeout($this->config->timeout)
-                ->get($this->getEndpoint("agents/{$agentId}"));
+            $endpoint = $this->getEndpoint("agents/{$agentId}");
+            $response = $this->makeLoggedApiCall(
+                method: 'GET',
+                endpoint: $endpoint,
+                headers: $this->config->getAuthHeaders(),
+                data: [],
+                timeout: $this->config->timeout,
+                operation: 'getAgent'
+            );
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {
@@ -52,9 +65,15 @@ class AgentController
     public function create(AgentDto $agentData): ApiResponseDto
     {
         try {
-            $response = Http::withHeaders($this->config->getAuthHeaders())
-                ->timeout($this->config->timeout)
-                ->post($this->getEndpoint('agents'), $agentData->toArray());
+            $endpoint = $this->getEndpoint('agents');
+            $response = $this->makeLoggedApiCall(
+                method: 'POST',
+                endpoint: $endpoint,
+                headers: $this->config->getAuthHeaders(),
+                data: $agentData->toArray(),
+                timeout: $this->config->timeout,
+                operation: 'createAgent'
+            );
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {
@@ -66,9 +85,15 @@ class AgentController
     public function update(string $agentId, AgentDto $agentData): ApiResponseDto
     {
         try {
-            $response = Http::withHeaders($this->config->getAuthHeaders())
-                ->timeout($this->config->timeout)
-                ->put($this->getEndpoint("agents/{$agentId}"), $agentData->toArray());
+            $endpoint = $this->getEndpoint("agents/{$agentId}");
+            $response = $this->makeLoggedApiCall(
+                method: 'PUT',
+                endpoint: $endpoint,
+                headers: $this->config->getAuthHeaders(),
+                data: $agentData->toArray(),
+                timeout: $this->config->timeout,
+                operation: 'updateAgent'
+            );
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {
@@ -80,9 +105,15 @@ class AgentController
     public function delete(string $agentId): ApiResponseDto
     {
         try {
-            $response = Http::withHeaders($this->config->getAuthHeaders())
-                ->timeout($this->config->timeout)
-                ->delete($this->getEndpoint("agents/{$agentId}"));
+            $endpoint = $this->getEndpoint("agents/{$agentId}");
+            $response = $this->makeLoggedApiCall(
+                method: 'DELETE',
+                endpoint: $endpoint,
+                headers: $this->config->getAuthHeaders(),
+                data: [],
+                timeout: $this->config->timeout,
+                operation: 'deleteAgent'
+            );
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {

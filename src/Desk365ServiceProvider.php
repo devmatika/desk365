@@ -16,7 +16,8 @@ class Desk365ServiceProvider extends PackageServiceProvider
          */
         $package
             ->name('desk365')
-            ->hasConfigFile();
+            ->hasConfigFile()
+            ->hasMigrations(['2025_01_01_000000_create_desk365_api_logs_table']);
     }
 
     public function packageBooted()

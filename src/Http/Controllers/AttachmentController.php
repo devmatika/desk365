@@ -6,11 +6,12 @@ use Davoodf1995\Desk365\DTO\{
     ApiResponseDto,
     ApiConfigDto
 };
-use Illuminate\Support\Facades\Http;
+use Davoodf1995\Desk365\Traits\LogsApiCalls;
 use Illuminate\Support\Facades\Log;
 
 class AttachmentController
 {
+    use LogsApiCalls;
     private ApiConfigDto $config;
     private string $apiVersion;
 
@@ -23,10 +24,16 @@ class AttachmentController
     public function upload(string $ticketId, $file, array $metadata = []): ApiResponseDto
     {
         try {
-            $response = Http::withHeaders($this->config->getAuthHeaders())
-                ->timeout($this->config->timeout)
-                ->attach('file', $file, $metadata['filename'] ?? null)
-                ->post($this->getEndpoint("tickets/{$ticketId}/attachments"), $metadata);
+            $endpoint = $this->getEndpoint("tickets/{$ticketId}/attachments");
+            $response = $this->makeLoggedApiCallWithFile(
+                method: 'POST',
+                endpoint: $endpoint,
+                headers: $this->config->getAuthHeaders(),
+                data: $metadata,
+                file: $file,
+                timeout: $this->config->timeout,
+                operation: 'uploadAttachment'
+            );
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {
@@ -38,9 +45,15 @@ class AttachmentController
     public function getAll(string $ticketId, array $params = []): ApiResponseDto
     {
         try {
-            $response = Http::withHeaders($this->config->getAuthHeaders())
-                ->timeout($this->config->timeout)
-                ->get($this->getEndpoint("tickets/{$ticketId}/attachments", $params));
+            $endpoint = $this->getEndpoint("tickets/{$ticketId}/attachments", $params);
+            $response = $this->makeLoggedApiCall(
+                method: 'GET',
+                endpoint: $endpoint,
+                headers: $this->config->getAuthHeaders(),
+                data: $params,
+                timeout: $this->config->timeout,
+                operation: 'getAttachments'
+            );
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {
@@ -52,9 +65,15 @@ class AttachmentController
     public function getById(string $ticketId, string $attachmentId): ApiResponseDto
     {
         try {
-            $response = Http::withHeaders($this->config->getAuthHeaders())
-                ->timeout($this->config->timeout)
-                ->get($this->getEndpoint("tickets/{$ticketId}/attachments/{$attachmentId}"));
+            $endpoint = $this->getEndpoint("tickets/{$ticketId}/attachments/{$attachmentId}");
+            $response = $this->makeLoggedApiCall(
+                method: 'GET',
+                endpoint: $endpoint,
+                headers: $this->config->getAuthHeaders(),
+                data: [],
+                timeout: $this->config->timeout,
+                operation: 'getAttachment'
+            );
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {
@@ -66,9 +85,15 @@ class AttachmentController
     public function delete(string $ticketId, string $attachmentId): ApiResponseDto
     {
         try {
-            $response = Http::withHeaders($this->config->getAuthHeaders())
-                ->timeout($this->config->timeout)
-                ->delete($this->getEndpoint("tickets/{$ticketId}/attachments/{$attachmentId}"));
+            $endpoint = $this->getEndpoint("tickets/{$ticketId}/attachments/{$attachmentId}");
+            $response = $this->makeLoggedApiCall(
+                method: 'DELETE',
+                endpoint: $endpoint,
+                headers: $this->config->getAuthHeaders(),
+                data: [],
+                timeout: $this->config->timeout,
+                operation: 'deleteAttachment'
+            );
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {
@@ -80,9 +105,15 @@ class AttachmentController
     public function download(string $ticketId, string $attachmentId): ApiResponseDto
     {
         try {
-            $response = Http::withHeaders($this->config->getAuthHeaders())
-                ->timeout($this->config->timeout)
-                ->get($this->getEndpoint("tickets/{$ticketId}/attachments/{$attachmentId}/download"));
+            $endpoint = $this->getEndpoint("tickets/{$ticketId}/attachments/{$attachmentId}/download");
+            $response = $this->makeLoggedApiCall(
+                method: 'GET',
+                endpoint: $endpoint,
+                headers: $this->config->getAuthHeaders(),
+                data: [],
+                timeout: $this->config->timeout,
+                operation: 'downloadAttachment'
+            );
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {

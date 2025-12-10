@@ -10,11 +10,12 @@ use Davoodf1995\Desk365\DTO\{
     ReplyDto,
     NoteDto
 };
-use Illuminate\Support\Facades\Http;
+use Davoodf1995\Desk365\Traits\LogsApiCalls;
 use Illuminate\Support\Facades\Log;
 
 class Desk365TicketingService implements TicketingServiceInterface
 {
+    use LogsApiCalls;
     private ApiConfigDto $config;
     private string $apiVersion;
 
@@ -30,29 +31,31 @@ class Desk365TicketingService implements TicketingServiceInterface
         try {
             $files = $ticketData->file ?? null;
             if($files == null){
-                $response = Http::withHeaders($this->config->getAuthHeaders())
-                    ->timeout($this->config->timeout)
-                    ->post($this->getEndpoint('tickets/create'), $ticketData->toArray());
+                $endpoint = $this->getEndpoint('tickets/create');
+                $response = $this->makeLoggedApiCall(
+                    method: 'POST',
+                    endpoint: $endpoint,
+                    headers: $this->config->getAuthHeaders(),
+                    data: $ticketData->toArray(),
+                    timeout: $this->config->timeout,
+                    operation: 'createTicket'
+                );
 
                 return $this->handleResponse($response);
             } else {
                 $ticketArray = $ticketData->toArray();
                 $ticketObject = json_encode($ticketArray);
+                $endpoint = $this->getEndpoint('tickets/create_with_attachment', ['ticket_object' => $ticketObject]);
 
-                $http = Http::withHeaders($this->config->getAuthHeaders())
-                    ->timeout($this->config->timeout);
-
-                // Handle multiple files (use 'files' for multiple, 'file' for single)
-                if (is_array($files) && count($files) > 1) {
-                    foreach ($files as $file) {
-                        $http->attach('files', $file);
-                    }
-                } else {
-                    $fileToAttach = is_array($files) ? $files[0] : $files;
-                    $http->attach('file', $fileToAttach);
-                }
-
-                $response = $http->post($this->getEndpoint('tickets/create_with_attachment', ['ticket_object' => $ticketObject]));
+                $response = $this->makeLoggedApiCallWithFile(
+                    method: 'POST',
+                    endpoint: $endpoint,
+                    headers: $this->config->getAuthHeaders(),
+                    data: ['ticket_object' => $ticketObject],
+                    file: $files,
+                    timeout: $this->config->timeout,
+                    operation: 'createTicket'
+                );
 
                 return $this->handleResponse($response);
             }
@@ -65,9 +68,15 @@ class Desk365TicketingService implements TicketingServiceInterface
     public function updateTicket(string $ticketNumber, TicketUpdateDto $ticketData): ApiResponseDto
     {
         try {
-            $response = Http::withHeaders($this->config->getAuthHeaders())
-                ->timeout($this->config->timeout)
-                ->put($this->getEndpoint("tickets/update", ['ticket_number' => $ticketNumber]), $ticketData->toArray());
+            $endpoint = $this->getEndpoint("tickets/update", ['ticket_number' => $ticketNumber]);
+            $response = $this->makeLoggedApiCall(
+                method: 'PUT',
+                endpoint: $endpoint,
+                headers: $this->config->getAuthHeaders(),
+                data: $ticketData->toArray(),
+                timeout: $this->config->timeout,
+                operation: 'updateTicket'
+            );
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {
@@ -93,30 +102,33 @@ class Desk365TicketingService implements TicketingServiceInterface
     {
         try {
             if ($files === null) {
-                $response = Http::withHeaders($this->config->getAuthHeaders())
-                    ->timeout($this->config->timeout)
-                    ->post($this->getEndpoint("tickets/add_reply", ['ticket_number' => $ticketNumber]), $reply->toArray());
+                $endpoint = $this->getEndpoint("tickets/add_reply", ['ticket_number' => $ticketNumber]);
+                $response = $this->makeLoggedApiCall(
+                    method: 'POST',
+                    endpoint: $endpoint,
+                    headers: $this->config->getAuthHeaders(),
+                    data: $reply->toArray(),
+                    timeout: $this->config->timeout,
+                    operation: 'addReply'
+                );
 
                 return $this->handleResponse($response);
             } else {
                 $replyObject = json_encode($reply->toArray());
-                $http = Http::withHeaders($this->config->getAuthHeaders())
-                    ->timeout($this->config->timeout);
-
-                // Handle multiple files (use 'files' for multiple, 'file' for single)
-                if (is_array($files) && count($files) > 1) {
-                    foreach ($files as $file) {
-                        $http->attach('files', $file);
-                    }
-                } else {
-                    $fileToAttach = is_array($files) ? $files[0] : $files;
-                    $http->attach('file', $fileToAttach);
-                }
-
-                $response = $http->post($this->getEndpoint("tickets/add_reply_with_attachment", [
+                $endpoint = $this->getEndpoint("tickets/add_reply_with_attachment", [
                     'ticket_number' => $ticketNumber,
                     'reply_object' => $replyObject
-                ]));
+                ]);
+
+                $response = $this->makeLoggedApiCallWithFile(
+                    method: 'POST',
+                    endpoint: $endpoint,
+                    headers: $this->config->getAuthHeaders(),
+                    data: ['reply_object' => $replyObject],
+                    file: $files,
+                    timeout: $this->config->timeout,
+                    operation: 'addReply'
+                );
 
                 return $this->handleResponse($response);
             }
@@ -131,30 +143,33 @@ class Desk365TicketingService implements TicketingServiceInterface
     {
         try {
             if ($files === null) {
-                $response = Http::withHeaders($this->config->getAuthHeaders())
-                    ->timeout($this->config->timeout)
-                    ->post($this->getEndpoint("tickets/add_note", ['ticket_number' => $ticketNumber]), $note->toArray());
+                $endpoint = $this->getEndpoint("tickets/add_note", ['ticket_number' => $ticketNumber]);
+                $response = $this->makeLoggedApiCall(
+                    method: 'POST',
+                    endpoint: $endpoint,
+                    headers: $this->config->getAuthHeaders(),
+                    data: $note->toArray(),
+                    timeout: $this->config->timeout,
+                    operation: 'addNote'
+                );
 
                 return $this->handleResponse($response);
             } else {
                 $noteObject = json_encode($note->toArray());
-                $http = Http::withHeaders($this->config->getAuthHeaders())
-                    ->timeout($this->config->timeout);
-
-                // Handle multiple files (use 'files' for multiple, 'file' for single)
-                if (is_array($files) && count($files) > 1) {
-                    foreach ($files as $file) {
-                        $http->attach('files', $file);
-                    }
-                } else {
-                    $fileToAttach = is_array($files) ? $files[0] : $files;
-                    $http->attach('file', $fileToAttach);
-                }
-
-                $response = $http->post($this->getEndpoint("tickets/add_note_with_attachment", [
+                $endpoint = $this->getEndpoint("tickets/add_note_with_attachment", [
                     'ticket_number' => $ticketNumber,
                     'note_object' => $noteObject
-                ]));
+                ]);
+
+                $response = $this->makeLoggedApiCallWithFile(
+                    method: 'POST',
+                    endpoint: $endpoint,
+                    headers: $this->config->getAuthHeaders(),
+                    data: ['note_object' => $noteObject],
+                    file: $files,
+                    timeout: $this->config->timeout,
+                    operation: 'addNote'
+                );
 
                 return $this->handleResponse($response);
             }

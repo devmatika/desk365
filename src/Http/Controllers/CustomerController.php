@@ -7,11 +7,12 @@ use Davoodf1995\Desk365\DTO\{
     ApiConfigDto,
     CustomerDto
 };
-use Illuminate\Support\Facades\Http;
+use Davoodf1995\Desk365\Traits\LogsApiCalls;
 use Illuminate\Support\Facades\Log;
 
 class CustomerController
 {
+    use LogsApiCalls;
     private ApiConfigDto $config;
     private string $apiVersion;
 
@@ -24,9 +25,15 @@ class CustomerController
     public function getAll(array $params = []): ApiResponseDto
     {
         try {
-            $response = Http::withHeaders($this->config->getAuthHeaders())
-                ->timeout($this->config->timeout)
-                ->get($this->getEndpoint('contacts', $params));
+            $endpoint = $this->getEndpoint('contacts', $params);
+            $response = $this->makeLoggedApiCall(
+                method: 'GET',
+                endpoint: $endpoint,
+                headers: $this->config->getAuthHeaders(),
+                data: $params,
+                timeout: $this->config->timeout,
+                operation: 'getAllContacts'
+            );
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {
@@ -38,9 +45,15 @@ class CustomerController
     public function getById(string $primaryEmail): ApiResponseDto
     {
         try {
-            $response = Http::withHeaders($this->config->getAuthHeaders())
-                ->timeout($this->config->timeout)
-                ->get($this->getEndpoint("contacts/details", ['primary_email' => $primaryEmail]));
+            $endpoint = $this->getEndpoint("contacts/details", ['primary_email' => $primaryEmail]);
+            $response = $this->makeLoggedApiCall(
+                method: 'GET',
+                endpoint: $endpoint,
+                headers: $this->config->getAuthHeaders(),
+                data: [],
+                timeout: $this->config->timeout,
+                operation: 'getContact'
+            );
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {
@@ -52,9 +65,15 @@ class CustomerController
     public function create(CustomerDto $customerData): ApiResponseDto
     {
         try {
-            $response = Http::withHeaders($this->config->getAuthHeaders())
-                ->timeout($this->config->timeout)
-                ->post($this->getEndpoint('contacts/create'), $customerData->toArray());
+            $endpoint = $this->getEndpoint('contacts/create');
+            $response = $this->makeLoggedApiCall(
+                method: 'POST',
+                endpoint: $endpoint,
+                headers: $this->config->getAuthHeaders(),
+                data: $customerData->toArray(),
+                timeout: $this->config->timeout,
+                operation: 'createContact'
+            );
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {
@@ -66,9 +85,15 @@ class CustomerController
     public function update(string $primaryEmail, CustomerDto $customerData): ApiResponseDto
     {
         try {
-            $response = Http::withHeaders($this->config->getAuthHeaders())
-                ->timeout($this->config->timeout)
-                ->put($this->getEndpoint("contacts/update", ['primary_email' => $primaryEmail]), $customerData->toArray());
+            $endpoint = $this->getEndpoint("contacts/update", ['primary_email' => $primaryEmail]);
+            $response = $this->makeLoggedApiCall(
+                method: 'PUT',
+                endpoint: $endpoint,
+                headers: $this->config->getAuthHeaders(),
+                data: $customerData->toArray(),
+                timeout: $this->config->timeout,
+                operation: 'updateContact'
+            );
 
             return $this->handleResponse($response);
         } catch (\Exception $e) {

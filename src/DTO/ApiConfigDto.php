@@ -44,7 +44,7 @@ class ApiConfigDto
     public function getAuthHeaders(): array
     {
         $headers = $this->headers ?? [];
-        $headers['Authorization'] = 'Bearer ' . $this->apiKey;
+        $headers['Authorization'] = $this->apiKey;
         
         if ($this->apiSecret) {
             $headers['X-API-Secret'] = $this->apiSecret;
