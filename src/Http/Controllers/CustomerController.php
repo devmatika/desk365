@@ -25,7 +25,7 @@ class CustomerController
     public function getAll(array $params = []): ApiResponseDto
     {
         try {
-            $endpoint = $this->getEndpoint('contacts', $params);
+            $endpoint = $this->getEndpoint('contacts');
             $response = $this->makeLoggedApiCall(
                 method: 'GET',
                 endpoint: $endpoint,
@@ -45,12 +45,12 @@ class CustomerController
     public function getById(string $primaryEmail): ApiResponseDto
     {
         try {
-            $endpoint = $this->getEndpoint("contacts/details", ['primary_email' => $primaryEmail]);
+            $endpoint = $this->getEndpoint("contacts/details");
             $response = $this->makeLoggedApiCall(
                 method: 'GET',
                 endpoint: $endpoint,
                 headers: $this->config->getAuthHeaders(),
-                data: [],
+                data: ['primary_email' => $primaryEmail],
                 timeout: $this->config->timeout,
                 operation: 'getContact'
             );

@@ -27,7 +27,7 @@ class CommentController
     {
         try {
             $params['ticket_number'] = $ticketNumber;
-            $endpoint = $this->getEndpoint("tickets/conversations", $params);
+            $endpoint = $this->getEndpoint("tickets/conversations");
             $response = $this->makeLoggedApiCall(
                 method: 'GET',
                 endpoint: $endpoint,

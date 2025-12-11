@@ -25,7 +25,7 @@ class AgentController
     public function getAll(array $params = []): ApiResponseDto
     {
         try {
-            $endpoint = $this->getEndpoint('agents', $params);
+            $endpoint = $this->getEndpoint('agents');
             $response = $this->makeLoggedApiCall(
                 method: 'GET',
                 endpoint: $endpoint,

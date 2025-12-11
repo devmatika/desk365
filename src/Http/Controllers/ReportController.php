@@ -26,7 +26,7 @@ class ReportController
     {
         try {
             $params = $filters ? $filters->toArray() : [];
-            $endpoint = $this->getEndpoint('reports/tickets/statistics', $params);
+            $endpoint = $this->getEndpoint('reports/tickets/statistics');
             $response = $this->makeLoggedApiCall(
                 method: 'GET',
                 endpoint: $endpoint,
@@ -52,7 +52,7 @@ class ReportController
                 'date_to' => $dateTo,
             ]);
             
-            $endpoint = $this->getEndpoint('reports/agents/statistics', $params);
+            $endpoint = $this->getEndpoint('reports/agents/statistics');
             $response = $this->makeLoggedApiCall(
                 method: 'GET',
                 endpoint: $endpoint,
@@ -72,7 +72,7 @@ class ReportController
     public function getDashboardData(array $params = []): ApiResponseDto
     {
         try {
-            $endpoint = $this->getEndpoint('reports/dashboard', $params);
+            $endpoint = $this->getEndpoint('reports/dashboard');
             $response = $this->makeLoggedApiCall(
                 method: 'GET',
                 endpoint: $endpoint,

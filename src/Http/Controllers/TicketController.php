@@ -31,7 +31,7 @@ class TicketController
     {
         try {
             $params = $filters ? $filters->toArray() : [];
-            $endpoint = $this->getEndpoint('tickets', $params);
+            $endpoint = $this->getEndpoint('tickets');
             $response = $this->makeLoggedApiCall(
                 method: 'GET',
                 endpoint: $endpoint,
@@ -132,7 +132,7 @@ class TicketController
     {
         try {
             $params['ticket_number'] = $ticketNumber;
-            $endpoint = $this->getEndpoint("tickets/conversations", $params);
+            $endpoint = $this->getEndpoint("tickets/conversations");
             $response = $this->makeLoggedApiCall(
                 method: 'GET',
                 endpoint: $endpoint,

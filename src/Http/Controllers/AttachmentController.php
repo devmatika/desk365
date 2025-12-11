@@ -45,7 +45,7 @@ class AttachmentController
     public function getAll(string $ticketId, array $params = []): ApiResponseDto
     {
         try {
-            $endpoint = $this->getEndpoint("tickets/{$ticketId}/attachments", $params);
+            $endpoint = $this->getEndpoint("tickets/{$ticketId}/attachments");
             $response = $this->makeLoggedApiCall(
                 method: 'GET',
                 endpoint: $endpoint,
