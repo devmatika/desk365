@@ -114,7 +114,7 @@ class ReportController
         }
 
         return ApiResponseDto::error(
-            message: $data['message'] ?? 'API request failed',
+            message: $data['message'] ?? $data,
             errors: $data['errors'] ?? null,
             statusCode: $statusCode,
             meta: $data['meta'] ?? null
