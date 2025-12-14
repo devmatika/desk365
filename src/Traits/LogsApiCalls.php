@@ -119,7 +119,21 @@ trait LogsApiCalls
         // Note: For file uploads, we log the metadata but not the actual file content
         if ($file) {
             $fileName = 'unknown';
-            if (method_exists($file, 'getClientOriginalName')) {
+            // Handle array of files
+            if (is_array($file)) {
+                $fileCount = count($file);
+                $firstFile = $file[0] ?? null;
+                if ($firstFile) {
+                    if (is_object($firstFile) && method_exists($firstFile, 'getClientOriginalName')) {
+                        $fileName = $firstFile->getClientOriginalName();
+                    } elseif (is_string($firstFile)) {
+                        $fileName = basename($firstFile);
+                    } elseif (is_object($firstFile) && property_exists($firstFile, 'name')) {
+                        $fileName = $firstFile->name;
+                    }
+                }
+                $fileName = $fileCount > 1 ? "{$fileName} (+{$fileCount} files)" : $fileName;
+            } elseif (is_object($file) && method_exists($file, 'getClientOriginalName')) {
                 $fileName = $file->getClientOriginalName();
             } elseif (is_string($file)) {
                 $fileName = basename($file);
