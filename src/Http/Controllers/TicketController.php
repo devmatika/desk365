@@ -69,6 +69,17 @@ class TicketController
         }
     }
 
+    /**
+     * Create a new ticket, optionally with attachments
+     * 
+     * Attachments follow Desk365 API rules:
+     * - Content-Type is automatically set to 'multipart/form-data'
+     * - Multiple files use 'files' parameter, single file uses 'file' parameter
+     * - Only local files can be attached
+     * 
+     * @param TicketCreateDto $ticketData The ticket data (may include 'file' property for attachments)
+     * @return ApiResponseDto
+     */
     public function create(TicketCreateDto $ticketData): ApiResponseDto
     {
         try {
@@ -91,6 +102,10 @@ class TicketController
                 $ticketObject = json_encode($ticketArray);
                 $endpoint = $this->getEndpoint('tickets/create_with_attachment', ['ticket_object' => $ticketObject]);
 
+                // Uses makeLoggedApiCallWithFile which handles:
+                // - Content-Type: multipart/form-data (automatic)
+                // - Multiple files: 'files' parameter
+                // - Single file: 'file' parameter
                 $response = $this->makeLoggedApiCallWithFile(
                     method: 'POST',
                     endpoint: $endpoint,
@@ -150,6 +165,19 @@ class TicketController
         }
     }
 
+    /**
+     * Add a reply to a ticket, optionally with attachments
+     * 
+     * Attachments follow Desk365 API rules:
+     * - Content-Type is automatically set to 'multipart/form-data'
+     * - Multiple files use 'files' parameter, single file uses 'file' parameter
+     * - Only local files can be attached
+     * 
+     * @param string $ticketNumber The ticket number
+     * @param ReplyDto $replyData The reply data
+     * @param mixed $files File path(s) - can be string (single file) or array (multiple files), or null for no attachments
+     * @return ApiResponseDto
+     */
     public function addReply(string $ticketNumber, ReplyDto $replyData, $files = null): ApiResponseDto
     {
         try {
@@ -172,6 +200,10 @@ class TicketController
                     'reply_object' => $replyObject
                 ]);
 
+                // Uses makeLoggedApiCallWithFile which handles:
+                // - Content-Type: multipart/form-data (automatic)
+                // - Multiple files: 'files' parameter
+                // - Single file: 'file' parameter
                 $response = $this->makeLoggedApiCallWithFile(
                     method: 'POST',
                     endpoint: $endpoint,
@@ -190,6 +222,19 @@ class TicketController
         }
     }
 
+    /**
+     * Add a note to a ticket, optionally with attachments
+     * 
+     * Attachments follow Desk365 API rules:
+     * - Content-Type is automatically set to 'multipart/form-data'
+     * - Multiple files use 'files' parameter, single file uses 'file' parameter
+     * - Only local files can be attached
+     * 
+     * @param string $ticketNumber The ticket number
+     * @param NoteDto $noteData The note data
+     * @param mixed $files File path(s) - can be string (single file) or array (multiple files), or null for no attachments
+     * @return ApiResponseDto
+     */
     public function addNote(string $ticketNumber, NoteDto $noteData, $files = null): ApiResponseDto
     {
         try {
@@ -212,6 +257,10 @@ class TicketController
                     'note_object' => $noteObject
                 ]);
 
+                // Uses makeLoggedApiCallWithFile which handles:
+                // - Content-Type: multipart/form-data (automatic)
+                // - Multiple files: 'files' parameter
+                // - Single file: 'file' parameter
                 $response = $this->makeLoggedApiCallWithFile(
                     method: 'POST',
                     endpoint: $endpoint,
