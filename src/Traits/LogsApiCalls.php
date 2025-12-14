@@ -87,6 +87,21 @@ trait LogsApiCalls
 
     /**
      * Make an API call with file attachment and log the request and response
+     * 
+     * This method ensures compliance with Desk365 API attachment rules:
+     * - Content-Type is automatically set to 'multipart/form-data' by Laravel's HTTP client
+     * - Multiple files use 'files' parameter (array with count > 1)
+     * - Single file uses 'file' parameter
+     * - Only files on local machine can be attached (handled by caller)
+     * 
+     * @param string $method HTTP method (POST, PUT, PATCH)
+     * @param string $endpoint API endpoint URL
+     * @param array $headers HTTP headers (Content-Type will be removed and set automatically)
+     * @param array $data Form data to send
+     * @param mixed $file File path(s) - can be string (single file) or array (multiple files)
+     * @param int $timeout Request timeout in seconds
+     * @param string|null $operation Operation name for logging
+     * @return \Illuminate\Http\Client\Response
      */
     protected function makeLoggedApiCallWithFile(
         string $method,
@@ -115,15 +130,26 @@ trait LogsApiCalls
         }
 
         try {
-            $httpClient = Http::withHeaders($headers)->timeout($timeout);
+            // Remove Content-Type from headers if present - Laravel's attach() will set it to multipart/form-data automatically
+            // This ensures we comply with Desk365 API requirement: "The Content-Type of the request should always be 'multipart/form-data'"
+            $headersForFileUpload = $headers;
+            unset($headersForFileUpload['Content-Type']);
+            unset($headersForFileUpload['content-type']);
+            
+            $httpClient = Http::withHeaders($headersForFileUpload)->timeout($timeout);
             
             if ($file) {
-                // Handle multiple files (use 'files' for multiple, 'file' for single)
+                // Desk365 API rules:
+                // - If you need to attach multiple files, the 'files' parameter should be used instead of 'file'
+                // - Single file uses 'file' parameter
+                // - Laravel's attach() automatically sets Content-Type to multipart/form-data
                 if (is_array($file) && count($file) > 1) {
+                    // Multiple files: use 'files' parameter
                     foreach ($file as $f) {
                         $httpClient = $httpClient->attach('files', $f);
                     }
                 } else {
+                    // Single file: use 'file' parameter
                     $fileToAttach = is_array($file) ? $file[0] : $file;
                     $httpClient = $httpClient->attach('file', $fileToAttach);
                 }
