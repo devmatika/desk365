@@ -160,12 +160,22 @@ trait LogsApiCalls
                 if (is_array($file) && count($file) > 1) {
                     // Multiple files: use 'files' parameter
                     foreach ($file as $f) {
-                        $httpClient = $httpClient->attach('files', $f);
+                        // Handle UploadedFile objects by extracting path and filename
+                        if (is_object($f) && method_exists($f, 'getRealPath') && method_exists($f, 'getClientOriginalName')) {
+                            $httpClient = $httpClient->attach('files', $f->getRealPath(), $f->getClientOriginalName());
+                        } else {
+                            $httpClient = $httpClient->attach('files', $f);
+                        }
                     }
                 } else {
                     // Single file: use 'file' parameter
                     $fileToAttach = is_array($file) ? $file[0] : $file;
-                    $httpClient = $httpClient->attach('file', $fileToAttach);
+                    // Handle UploadedFile objects by extracting path and filename
+                    if (is_object($fileToAttach) && method_exists($fileToAttach, 'getRealPath') && method_exists($fileToAttach, 'getClientOriginalName')) {
+                        $httpClient = $httpClient->attach('file', $fileToAttach->getRealPath(), $fileToAttach->getClientOriginalName());
+                    } else {
+                        $httpClient = $httpClient->attach('file', $fileToAttach);
+                    }
                 }
             }
 

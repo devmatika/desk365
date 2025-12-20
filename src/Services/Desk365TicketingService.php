@@ -66,7 +66,7 @@ class Desk365TicketingService implements TicketingServiceInterface
                     method: 'POST',
                     endpoint: $endpoint,
                     headers: $this->config->getAuthHeaders(),
-                    data: ['ticket_object' => $ticketObject],
+                    data: [], // Parameters are in query string, not form data
                     file: $files,
                     timeout: $this->config->timeout,
                     operation: 'createTicket'
@@ -156,7 +156,7 @@ class Desk365TicketingService implements TicketingServiceInterface
                     method: 'POST',
                     endpoint: $endpoint,
                     headers: $this->config->getAuthHeaders(),
-                    data: ['reply_object' => $replyObject],
+                    data: [], // Parameters are in query string, not form data
                     file: $files,
                     timeout: $this->config->timeout,
                     operation: 'addReply'
@@ -214,7 +214,7 @@ class Desk365TicketingService implements TicketingServiceInterface
                     method: 'POST',
                     endpoint: $endpoint,
                     headers: $this->config->getAuthHeaders(),
-                    data: ['note_object' => $noteObject],
+                    data: [], // Parameters are in query string, not form data
                     file: $files,
                     timeout: $this->config->timeout,
                     operation: 'addNote'
