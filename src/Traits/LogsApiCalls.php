@@ -21,6 +21,65 @@ trait LogsApiCalls
     }
 
     /**
+     * Get file content, filename, and MIME type from various file input types
+     * 
+     * @param mixed $file File input (UploadedFile object, file path string, or file content)
+     * @return array [fileContent, fileName, contentType]
+     */
+    protected function getFileInfo($file): array
+    {
+        $fileContent = null;
+        $fileName = 'unknown';
+        $contentType = 'application/octet-stream';
+
+        // Handle UploadedFile objects
+        if (is_object($file) && method_exists($file, 'getRealPath') && method_exists($file, 'getClientOriginalName')) {
+            $filePath = $file->getRealPath();
+            $fileName = $file->getClientOriginalName();
+            
+            // Get file content
+            if ($filePath && file_exists($filePath)) {
+                $fileContent = file_get_contents($filePath);
+            } elseif (method_exists($file, 'getContent')) {
+                $fileContent = $file->getContent();
+            }
+            
+            // Get MIME type
+            if (method_exists($file, 'getClientMimeType')) {
+                $contentType = $file->getClientMimeType() ?: $contentType;
+            } elseif (method_exists($file, 'getMimeType')) {
+                $contentType = $file->getMimeType() ?: $contentType;
+            } elseif ($filePath && file_exists($filePath)) {
+                $contentType = mime_content_type($filePath) ?: $contentType;
+            }
+        }
+        // Handle file path strings
+        elseif (is_string($file) && file_exists($file)) {
+            $fileContent = file_get_contents($file);
+            $fileName = basename($file);
+            $contentType = mime_content_type($file) ?: $contentType;
+        }
+        // Handle file content directly (string that's not a file path)
+        elseif (is_string($file)) {
+            $fileContent = $file;
+            $fileName = 'attachment';
+            // Try to detect MIME type from content if finfo is available
+            if (function_exists('finfo_open')) {
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $contentType = finfo_buffer($finfo, $fileContent) ?: $contentType;
+                finfo_close($finfo);
+            }
+        }
+        // Fallback for other types
+        else {
+            $fileContent = $file;
+            $fileName = is_object($file) && property_exists($file, 'name') ? $file->name : 'attachment';
+        }
+
+        return [$fileContent, $fileName, $contentType];
+    }
+
+    /**
      * Make an API call and log the request and response
      */
     protected function makeLoggedApiCall(
@@ -160,28 +219,14 @@ trait LogsApiCalls
                 if (is_array($file) && count($file) > 1) {
                     // Multiple files: use 'files' parameter
                     foreach ($file as $f) {
-                        // Handle UploadedFile objects by extracting path and filename
-                        if (is_object($f) && method_exists($f, 'getRealPath') && method_exists($f, 'getClientOriginalName')) {
-                            $httpClient = $httpClient->attach('files', $f->getRealPath(), $f->getClientOriginalName());
-                        } elseif (is_string($f) && file_exists($f)) {
-                            // Handle file paths - extract filename from path
-                            $httpClient = $httpClient->attach('files', $f, basename($f));
-                        } else {
-                            $httpClient = $httpClient->attach('files', $f);
-                        }
+                        [$fileContent, $fileName, $contentType] = $this->getFileInfo($f);
+                        $httpClient = $httpClient->attach('files', $fileContent, $fileName, ['Content-Type' => $contentType]);
                     }
                 } else {
                     // Single file: use 'file' parameter
                     $fileToAttach = is_array($file) ? $file[0] : $file;
-                    // Handle UploadedFile objects by extracting path and filename
-                    if (is_object($fileToAttach) && method_exists($fileToAttach, 'getRealPath') && method_exists($fileToAttach, 'getClientOriginalName')) {
-                        $httpClient = $httpClient->attach('file', $fileToAttach->getRealPath(), $fileToAttach->getClientOriginalName());
-                    } elseif (is_string($fileToAttach) && file_exists($fileToAttach)) {
-                        // Handle file paths - extract filename from path
-                        $httpClient = $httpClient->attach('file', $fileToAttach, basename($fileToAttach));
-                    } else {
-                        $httpClient = $httpClient->attach('file', $fileToAttach);
-                    }
+                    [$fileContent, $fileName, $contentType] = $this->getFileInfo($fileToAttach);
+                    $httpClient = $httpClient->attach('file', $fileContent, $fileName, ['Content-Type' => $contentType]);
                 }
             }
 
