@@ -14,7 +14,8 @@ return [
     'api_key' => env('DESK365_API_KEY', ''),
     'api_secret' => env('DESK365_API_SECRET', null),
     'timeout' => env('DESK365_TIMEOUT', 30),
-    'retry_attempts' => env('DESK365_RETRY_ATTEMPTS', 3),
+    "retry_attempts" => env("DESK365_RETRY_ATTEMPTS", 3),
+    "retry_backoff" => env("DESK365_RETRY_BACKOFF", 60), // seconds
     'version' => env('DESK365_API_VERSION', 'v3'),
     "from_email" => env("DESK365_FROM_EMAIL", "support@domain.desk365.io"),
 ];
