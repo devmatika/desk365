@@ -1,6 +1,6 @@
 <?php
 
-namespace Davoodf1995\Desk365\Models;
+namespace Devmatika\Desk365\Models;
 
 use Illuminate\Database\Eloquent\Model;
 

@@ -1,12 +1,12 @@
 <?php
 
-namespace Davoodf1995\Desk365\Services;
+namespace Devmatika\Desk365\Services;
 
-use Davoodf1995\Desk365\DTO\TicketCreateDto;
-use Davoodf1995\Desk365\DTO\TicketUpdateDto;
-use Davoodf1995\Desk365\DTO\ReplyDto;
-use Davoodf1995\Desk365\DTO\NoteDto;
-use Davoodf1995\Desk365\DTO\ApiResponseDto;
+use Devmatika\Desk365\DTO\TicketCreateDto;
+use Devmatika\Desk365\DTO\TicketUpdateDto;
+use Devmatika\Desk365\DTO\ReplyDto;
+use Devmatika\Desk365\DTO\NoteDto;
+use Devmatika\Desk365\DTO\ApiResponseDto;
 
 interface TicketingServiceInterface
 {

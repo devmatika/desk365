@@ -1,9 +1,9 @@
 <?php
 
-namespace Davoodf1995\Desk365\Traits;
+namespace Devmatika\Desk365\Traits;
 
-use Davoodf1995\Desk365\DTO\ApiResponseDto;
-use Davoodf1995\Desk365\DTO\ApiConfigDto;
+use Devmatika\Desk365\DTO\ApiResponseDto;
+use Devmatika\Desk365\DTO\ApiConfigDto;
 
 trait HandlesApiResponses
 {

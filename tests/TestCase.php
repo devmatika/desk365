@@ -1,10 +1,10 @@
 <?php
 
-namespace Davoodf1995\Desk365\Tests;
+namespace Devmatika\Desk365\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Davoodf1995\Desk365\Desk365ServiceProvider;
+use Devmatika\Desk365\Desk365ServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -13,7 +13,7 @@ class TestCase extends Orchestra
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'Davoodf1995\\Desk365\\Database\\Factories\\'.class_basename($modelName).'Factory'
+            fn (string $modelName) => 'Devmatika\\Desk365\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
     }
 

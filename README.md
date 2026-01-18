@@ -7,8 +7,8 @@ Laravel Package for complete integration with Desk365 Ticketing API. This packag
 You can install the package via composer:
 
 ```bash
-composer require davoodf1995/desk365
-```
+composer require devmatika/desk365
+``` 
 
 You can publish the config file with:
 
@@ -47,8 +47,8 @@ DESK365_API_VERSION=v3
 ### Using the Facade
 
 ```php
-use Davoodf1995\Desk365\Facades\Desk365;
-use Davoodf1995\Desk365\DTO\{
+use Devmatika\Desk365\Facades\Desk365;
+use Devmatika\Desk365\DTO\{
     TicketCreateDto,
     TicketUpdateDto,
     TicketFilterDto,

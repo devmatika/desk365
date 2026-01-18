@@ -1,6 +1,6 @@
 <?php
 
-namespace Davoodf1995\Desk365;
+namespace Devmatika\Desk365;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;

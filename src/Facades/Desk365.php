@@ -1,17 +1,17 @@
 <?php
 
-namespace Davoodf1995\Desk365\Facades;
+namespace Devmatika\Desk365\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \Davoodf1995\Desk365\Desk365
+ * @see \Devmatika\Desk365\Desk365
  */
 class Desk365 extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return \Davoodf1995\Desk365\Desk365::class;
+        return \Devmatika\Desk365\Desk365::class;
     }
 }
 

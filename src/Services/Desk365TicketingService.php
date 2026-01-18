@@ -1,8 +1,8 @@
 <?php
 
-namespace Davoodf1995\Desk365\Services;
+namespace Devmatika\Desk365\Services;
 
-use Davoodf1995\Desk365\DTO\{
+use Devmatika\Desk365\DTO\{
     ApiResponseDto,
     ApiConfigDto,
     TicketCreateDto,
@@ -10,7 +10,7 @@ use Davoodf1995\Desk365\DTO\{
     ReplyDto,
     NoteDto
 };
-use Davoodf1995\Desk365\Traits\LogsApiCalls;
+use Devmatika\Desk365\Traits\LogsApiCalls;
 use Illuminate\Support\Facades\Log;
 
 class Desk365TicketingService implements TicketingServiceInterface

@@ -1,14 +1,14 @@
 {
-    "name": "davoodf1995/desk365",
+    "name": "devmatika/desk365",
     "description": "Desk365 API integration for Laravel",
     "keywords": [
-        "davoodf1995",
+        "devmatika",
         "laravel",
         "desk365",
         "ticketing",
         "api"
     ],
-    "homepage": "https://github.com/davoodf1995/desk365",
+    "homepage": "https://github.com/devmatika/desk365",
     "license": "MIT",
     "authors": [
         {
@@ -38,13 +38,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Davoodf1995\\Desk365\\": "src",
-            "Davoodf1995\\Desk365\\Database\\Factories\\": "database/factories"
+            "Devmatika\\Desk365\\": "src",
+            "Devmatika\\Desk365\\Database\\Factories\\": "database/factories"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Davoodf1995\\Desk365\\Tests\\": "tests"
+            "Devmatika\\Desk365\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -63,10 +63,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Davoodf1995\\Desk365\\Desk365ServiceProvider"
+                "Devmatika\\Desk365\\Desk365ServiceProvider"
             ],
             "aliases": {
-                "Desk365": "Davoodf1995\\Desk365\\Facades\\Desk365"
+                "Desk365": "Devmatika\\Desk365\\Facades\\Desk365"
             }
         }
     },

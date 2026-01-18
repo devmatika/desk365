@@ -1,14 +1,14 @@
 <?php
 
-namespace Davoodf1995\Desk365\Http\Controllers;
+namespace Devmatika\Desk365\Http\Controllers;
 
-use Davoodf1995\Desk365\DTO\{
+use Devmatika\Desk365\DTO\{
     ApiResponseDto,
     ApiConfigDto,
     AgentDto
 };
-use Davoodf1995\Desk365\Traits\LogsApiCalls;
-use Davoodf1995\Desk365\Traits\HandlesApiResponses;
+use Devmatika\Desk365\Traits\LogsApiCalls;
+use Devmatika\Desk365\Traits\HandlesApiResponses;
 use Illuminate\Support\Facades\Log;
 
 class AgentController

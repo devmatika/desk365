@@ -1,8 +1,8 @@
 <?php
 
-namespace Davoodf1995\Desk365\Services;
+namespace Devmatika\Desk365\Services;
 
-use Davoodf1995\Desk365\Models\Desk365ApiLog;
+use Devmatika\Desk365\Models\Desk365ApiLog;
 use Illuminate\Support\Facades\Log;
 
 class ApiLoggingService

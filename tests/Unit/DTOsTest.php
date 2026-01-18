@@ -1,6 +1,6 @@
 <?php
 
-use Davoodf1995\Desk365\DTO\{
+use Devmatika\Desk365\DTO\{
     ApiConfigDto,
     ApiResponseDto,
     TicketCreateDto,

@@ -1,6 +1,6 @@
 <?php
 
-namespace Davoodf1995\Desk365\DTO;
+namespace Devmatika\Desk365\DTO;
 
 /**
  * DTO for adding replies to tickets

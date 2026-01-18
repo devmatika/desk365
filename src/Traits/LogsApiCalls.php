@@ -1,8 +1,8 @@
 <?php
 
-namespace Davoodf1995\Desk365\Traits;
+namespace Devmatika\Desk365\Traits;
 
-use Davoodf1995\Desk365\Services\ApiLoggingService;
+use Devmatika\Desk365\Services\ApiLoggingService;
 use Illuminate\Support\Facades\Http;
 
 trait LogsApiCalls

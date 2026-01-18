@@ -1,7 +1,7 @@
 <?php
 
-use Davoodf1995\Desk365\Services\Desk365TicketingService;
-use Davoodf1995\Desk365\DTO\{
+use Devmatika\Desk365\Services\Desk365TicketingService;
+use Devmatika\Desk365\DTO\{
     ApiConfigDto,
     TicketCreateDto,
     TicketUpdateDto,
