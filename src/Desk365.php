@@ -11,7 +11,10 @@ use Devmatika\Desk365\Http\Controllers\{
     CommentController,
     AttachmentController,
     ReportController,
-    CompanyController
+    CompanyController,
+    KbCategoryController,
+    KbFolderController,
+    KbArticleController
 };
 use Devmatika\Desk365\DTO\{
     TicketCreateDto,
@@ -34,6 +37,9 @@ class Desk365
     private static ?AttachmentController $attachmentController = null;
     private static ?ReportController $reportController = null;
     private static ?CompanyController $companyController = null;
+    private static ?KbCategoryController $kbCategoryController = null;
+    private static ?KbFolderController $kbFolderController = null;
+    private static ?KbArticleController $kbArticleController = null;
     private static ?Desk365TicketingService $service = null;
 
     /**
@@ -49,6 +55,9 @@ class Desk365
         self::$attachmentController = new AttachmentController($config);
         self::$reportController = new ReportController($config);
         self::$companyController = new CompanyController($config);
+        self::$kbCategoryController = new KbCategoryController($config);
+        self::$kbFolderController = new KbFolderController($config);
+        self::$kbArticleController = new KbArticleController($config);
         self::$service = new Desk365TicketingService($config);
     }
 
@@ -284,6 +293,96 @@ class Desk365
     {
         self::getConfig();
         return self::$companyController->update($companyName, $companyData);
+    }
+
+    // ========== KNOWLEDGE BASE - CATEGORIES ==========
+
+    public static function getAllKbCategories(array $params = [])
+    {
+        self::getConfig();
+        return self::$kbCategoryController->getAll($params);
+    }
+
+    public static function getKbCategory(string $categoryName)
+    {
+        self::getConfig();
+        return self::$kbCategoryController->getByName($categoryName);
+    }
+
+    public static function createKbCategory(array $data)
+    {
+        self::getConfig();
+        return self::$kbCategoryController->create($data);
+    }
+
+    public static function updateKbCategory(string $categoryName, array $data)
+    {
+        self::getConfig();
+        return self::$kbCategoryController->update($categoryName, $data);
+    }
+
+    public static function deleteKbCategory(string $categoryName)
+    {
+        self::getConfig();
+        return self::$kbCategoryController->delete($categoryName);
+    }
+
+    // ========== KNOWLEDGE BASE - FOLDERS ==========
+
+    public static function getKbFolder(string $categoryName, string $folderName)
+    {
+        self::getConfig();
+        return self::$kbFolderController->getDetails($categoryName, $folderName);
+    }
+
+    public static function createKbFolder(array $data)
+    {
+        self::getConfig();
+        return self::$kbFolderController->create($data);
+    }
+
+    public static function updateKbFolder(string $categoryName, string $folderName, array $data)
+    {
+        self::getConfig();
+        return self::$kbFolderController->update($categoryName, $folderName, $data);
+    }
+
+    public static function deleteKbFolder(string $categoryName, string $folderName)
+    {
+        self::getConfig();
+        return self::$kbFolderController->delete($categoryName, $folderName);
+    }
+
+    // ========== KNOWLEDGE BASE - ARTICLES ==========
+
+    public static function getAllKbArticles()
+    {
+        self::getConfig();
+        return self::$kbArticleController->getAll();
+    }
+
+    public static function getKbArticle(string $articleName)
+    {
+        self::getConfig();
+        return self::$kbArticleController->getDetails($articleName);
+    }
+
+    public static function createKbArticle(array $data)
+    {
+        self::getConfig();
+        return self::$kbArticleController->create($data);
+    }
+
+    public static function updateKbArticle(string $articleName, array $data)
+    {
+        self::getConfig();
+        return self::$kbArticleController->update($articleName, $data);
+    }
+
+    public static function deleteKbArticle(string $articleName)
+    {
+        self::getConfig();
+        return self::$kbArticleController->delete($articleName);
     }
 
     // ========== REPORT OPERATIONS ==========
