@@ -30,7 +30,7 @@ class TicketCreateDto
         return array_filter([
             'email' => $this->email,
             'form_name' => $this->form_name,
-            'subject' => $this->subject,
+            'subject' => substr($this->subject, 0, 120),
             'description' => $this->description,
             'status' => $this->status,
             'priority' => $this->priority,

@@ -24,7 +24,7 @@ class TicketUpdateDto
     public function toArray(): array
     {
         $result = array_filter([
-            'subject' => $this->subject,
+            'subject' => substr($this->subject, 0, 120),
             'description' => $this->description,
             'sla' => $this->sla,
             'status' => $this->status,
