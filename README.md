@@ -16,18 +16,7 @@ You can publish the config file with:
 php artisan vendor:publish --tag="desk365-config"
 ```
 
-This is the contents of the published config file:
-
-```php
-return [
-    'base_url' => env('DESK365_BASE_URL', 'https://api.desk365.com'),
-    'api_key' => env('DESK365_API_KEY', ''),
-    'api_secret' => env('DESK365_API_SECRET', null),
-    'timeout' => env('DESK365_TIMEOUT', 30),
-    'retry_attempts' => env('DESK365_RETRY_ATTEMPTS', 3),
-    'version' => env('DESK365_API_VERSION', 'v3'),
-];
-```
+The published `config/desk365.php` includes HTTP client keys (`base_url`, `api_key`, `api_secret`, `timeout`, `retry_attempts`, `retry_backoff`, `version`, `from_email`, optional `headers`) plus optional application keys used by larger integrations: custom Desk365 field names, OLC payload limits, Laravel queue names / listen order, `bulk_sync` throttling, `knowledge_base_sync` KB pull settings, and `conversation_webhook_resync_delay_seconds`. API key also falls back to `DESK_API_KEY` when `DESK365_API_KEY` is empty; same for `DESK_API_SECRET`. See the published file for the authoritative list and env variable names.
 
 ## Configuration
 
