@@ -78,6 +78,45 @@ it('can create a ticket with file attachment', function () {
     fclose($file);
 });
 
+it('sends ticket_object in multipart form instead of query string for attachments', function () {
+    Http::fake([
+        '*' => Http::response([
+            'success' => true,
+            'data' => ['ticket_number' => 'TKT-LONG'],
+            'message' => 'Ticket created with attachment',
+        ], 200),
+    ]);
+
+    $tempFile = tempnam(sys_get_temp_dir(), 'desk365');
+    file_put_contents($tempFile, 'attachment bytes');
+
+    $longDescription = str_repeat('A', 12_000);
+
+    $ticketData = new TicketCreateDto(
+        email: 'test@example.com',
+        subject: 'Long body ticket',
+        description: $longDescription,
+        assignedTo: 'agent_1',
+        group: 'support',
+        category: 'technical',
+        file: $tempFile,
+    );
+
+    $response = $this->service->createTicket($ticketData);
+
+    expect($response->isSuccess())->toBeTrue();
+
+    Http::assertSent(function ($request) use ($longDescription) {
+        $url = $request->url();
+
+        return str_contains($url, 'create_with_attachment')
+            && ! str_contains($url, 'ticket_object=')
+            && ! str_contains($url, $longDescription);
+    });
+
+    @unlink($tempFile);
+});
+
 it('can update a ticket', function () {
     Http::fake([
         'api.desk365.com/api/v3/tickets/update*' => Http::response([

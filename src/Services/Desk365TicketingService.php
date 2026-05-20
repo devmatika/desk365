@@ -55,18 +55,17 @@ class Desk365TicketingService implements TicketingServiceInterface
                 return $this->handleResponse($response);
             } else {
                 $ticketArray = $ticketData->toArray();
-                $ticketObject = json_encode($ticketArray);
-                $endpoint = $this->getEndpoint('tickets/create_with_attachment', ['ticket_object' => $ticketObject]);
+                unset($ticketArray['file']);
+                $ticketObject = json_encode($ticketArray, JSON_UNESCAPED_UNICODE);
+                // Desk365 curl samples use -F ticket_object=... (multipart), not query string.
+                // Putting JSON in the URL causes HTTP 414 on long email bodies.
+                $endpoint = $this->getEndpoint('tickets/create_with_attachment');
 
-                // Uses makeLoggedApiCallWithFile which handles:
-                // - Content-Type: multipart/form-data (automatic)
-                // - Multiple files: 'files' parameter
-                // - Single file: 'file' parameter
                 $response = $this->makeLoggedApiCallWithFile(
                     method: 'POST',
                     endpoint: $endpoint,
                     headers: $this->config->getAuthHeaders(),
-                    data: [], // Parameters are in query string, not form data
+                    data: ['ticket_object' => $ticketObject],
                     file: $files,
                     timeout: $this->config->timeout,
                     operation: 'createTicket'
@@ -142,21 +141,17 @@ class Desk365TicketingService implements TicketingServiceInterface
 
                 return $this->handleResponse($response);
             } else {
-                $replyObject = json_encode($reply->toArray());
-                $endpoint = $this->getEndpoint("tickets/add_reply_with_attachment", [
-                    'ticket_number' => $ticketNumber,
-                    'reply_object' => $replyObject
-                ]);
+                $replyObject = json_encode($reply->toArray(), JSON_UNESCAPED_UNICODE);
+                $endpoint = $this->getEndpoint('tickets/add_reply_with_attachment');
 
-                // Uses makeLoggedApiCallWithFile which handles:
-                // - Content-Type: multipart/form-data (automatic)
-                // - Multiple files: 'files' parameter
-                // - Single file: 'file' parameter
                 $response = $this->makeLoggedApiCallWithFile(
                     method: 'POST',
                     endpoint: $endpoint,
                     headers: $this->config->getAuthHeaders(),
-                    data: [], // Parameters are in query string, not form data
+                    data: [
+                        'ticket_number' => $ticketNumber,
+                        'reply_object' => $replyObject,
+                    ],
                     file: $files,
                     timeout: $this->config->timeout,
                     operation: 'addReply'
@@ -200,21 +195,17 @@ class Desk365TicketingService implements TicketingServiceInterface
 
                 return $this->handleResponse($response);
             } else {
-                $noteObject = json_encode($note->toArray());
-                $endpoint = $this->getEndpoint("tickets/add_note_with_attachment", [
-                    'ticket_number' => $ticketNumber,
-                    'note_object' => $noteObject
-                ]);
+                $noteObject = json_encode($note->toArray(), JSON_UNESCAPED_UNICODE);
+                $endpoint = $this->getEndpoint('tickets/add_note_with_attachment');
 
-                // Uses makeLoggedApiCallWithFile which handles:
-                // - Content-Type: multipart/form-data (automatic)
-                // - Multiple files: 'files' parameter
-                // - Single file: 'file' parameter
                 $response = $this->makeLoggedApiCallWithFile(
                     method: 'POST',
                     endpoint: $endpoint,
                     headers: $this->config->getAuthHeaders(),
-                    data: [], // Parameters are in query string, not form data
+                    data: [
+                        'ticket_number' => $ticketNumber,
+                        'note_object' => $noteObject,
+                    ],
                     file: $files,
                     timeout: $this->config->timeout,
                     operation: 'addNote'
