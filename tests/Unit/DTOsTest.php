@@ -85,6 +85,12 @@ it('can convert TicketCreateDto to array', function () {
         ->and($array['status'])->toBe('open');
 });
 
+it('omits subject when TicketUpdateDto only sets priority', function () {
+    $dto = new TicketUpdateDto(priority: 10);
+
+    expect($dto->toArray())->toBe(['priority' => 10]);
+});
+
 it('can convert TicketUpdateDto to array', function () {
     $dto = new TicketUpdateDto(
         status: 'closed',
