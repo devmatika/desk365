@@ -21,10 +21,15 @@ class TicketUpdateDto
     ) {
     }
 
+    /**
+     * Partial update payload: only non-null properties are included (Desk365 PATCH-style).
+     */
     public function toArray(): array
     {
         $result = array_filter([
-            'subject' => substr($this->subject, 0, 120),
+            'subject' => $this->subject !== null && $this->subject !== ''
+                ? substr($this->subject, 0, 120)
+                : null,
             'description' => $this->description,
             'sla' => $this->sla,
             'status' => $this->status,

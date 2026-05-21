@@ -83,11 +83,15 @@ class Desk365TicketingService implements TicketingServiceInterface
     {
         try {
             $endpoint = $this->getEndpoint("tickets/update", ['ticket_number' => $ticketNumber]);
+            $data = $ticketData->toArray();
+            if (array_key_exists('subject', $data) && $data['subject'] === '') {
+                unset($data['subject']);
+            }
             $response = $this->makeLoggedApiCall(
                 method: 'PUT',
                 endpoint: $endpoint,
                 headers: $this->config->getAuthHeaders(),
-                data: $ticketData->toArray(),
+                data: $data,
                 timeout: $this->config->timeout,
                 operation: 'updateTicket'
             );

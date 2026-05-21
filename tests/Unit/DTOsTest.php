@@ -99,6 +99,12 @@ it('can convert TicketUpdateDto to array', function () {
         ->and($array['priority'])->toBe(3);
 });
 
+it('omits subject from TicketUpdateDto when only priority is set', function () {
+    $dto = new TicketUpdateDto(priority: 10);
+
+    expect($dto->toArray())->toBe(['priority' => 10]);
+});
+
 it('can convert CommentDto to array', function () {
     $dto = new CommentDto(
         content: 'Test comment',
