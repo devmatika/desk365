@@ -352,6 +352,13 @@ composer test
 
 For complete API documentation, visit: [Desk365 API Docs](https://apps.desk365.io/apis/api-docs.html)
 
+
+## Support
+
+If you find this plugin useful and want to support its development, you can donate here:
+
+**[Donate via NOWPayments](https://nowpayments.io/donation/davood)**
+
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
